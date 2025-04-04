@@ -27,7 +27,7 @@ def main():
     start_time = time.time()  #początek pomiaru czasu
 
     solution_length = 0
-    vsited_states_count = 0  # zamkniete
+    visited_states_count = 0  # zamkniete
     processed_states_count = 0  # otwarte
     maximum_recursion_deapth = 0
     runtime = 0
@@ -38,6 +38,25 @@ def main():
             for j in range(len(state)):
                 if state[i][j] == 0:
                     return i, j
+
+    def read_matrix_from_file(filename):
+        matrix = []
+        rows = 0
+        columns = 0
+        file = open(filename, 'r')
+        first_line = file.readline()
+        row_col = first_line.strip().split()
+        rows = int(row_col[0])
+        cols = int(row_col[1])
+        for i in range(rows):
+            line = file.readline().strip()
+            values = list(map(int, line.split()))
+            matrix.append(values)
+        return matrix
+
+    strat_matrix = read_matrix_from_file(start_file)
+
+
 
     end_time = time.time()  #koniec pomiaru czasu
     runtime = end_time - start_time  #czas wykonania obliczeń w sekundach
