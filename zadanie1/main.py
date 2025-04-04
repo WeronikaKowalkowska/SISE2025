@@ -1,64 +1,46 @@
-import argparse
+import sys
 import numpy as np
 import time
 
-'''moves={
-    'L':
-    'R':
-    'U':
-    'D':
-    }'''
 
-start_time = time.time()  # Początek pomiaru
-
-
-
-
-solution_length=0
-vsited_states_count=0 #zamkniete
-processed_states_count=0 #otwarte
-maximum_recursion_deapth=0
-runtime=0
-
-#metoda zwraca pozycję zera z przekazanej planszy state
-def find_zero(state):
-    for i in range(len(state)):
-        for j in range(len(state)):
-            if state[i][j] == 0:
-                return i, j
-
-
-
-end_time = time.time()  # Koniec pomiaru
-runtime = end_time - start_time  # Czas wykonania w sekundach
-
-print(f"Czas wykonania: {runtime:.4f} sekundy")
-
-
+# uruchomienie: python main.py [parametry]
 def main():
-    #tworzenie obiektu parsera
-    parser = argparse.ArgumentParser(description="Opis działania programu.")
+    #sprawdzenie, czy podano odpowiednią liczbę argumentów
+    if len(sys.argv) < 5:
+        print("Not enough arguments.")
+        sys.exit(1)
 
-    #dodanie argumentów, które będą przekazywane z linii poleceń
-    parser.add_argument('--matrix', type=str, help='Macierz do rozwiązania (np. a, b, c)', required=True)
-    parser.add_argument('--iterations', type=int, help='Liczba iteracji do wykonania', required=False)
-    parser.add_argument('--accuracy', type=float, help='Dokładność, do jakiej ma być osiągnięte rozwiązanie',
-                        required=False)
+    #odczytanie argumentów
+    strategy = sys.argv[1]  #pierwszy argument - wybór strategii
+    parameter = sys.argv[2] #drugi argument - dodatkowy parament dla strategii
+    start_file = sys.argv[3]  #trzeci argument - plik z układem początkowym
+    end_file = sys.argv[4] #czwarty argument - plik z rozwiązaniem
+    additional_info_file = sys.argv[5] #piąty argument - plik z dodatkowymi informacjami o obliczeniach
 
-    # Parsujemy argumenty
-    args = parser.parse_args()
+    '''moves={
+        'L':
+        'R':
+        'U':
+        'D':
+        }'''
 
-    # Możemy teraz używać tych argumentów
-    print(f"Wybrana macierz: {args.matrix}")
+    start_time = time.time()  #początek pomiaru czasu
 
-    if args.iterations:
-        print(f"Liczba iteracji: {args.iterations}")
-    if args.accuracy:
-        print(f"Dokładność: {args.accuracy}")
+    solution_length = 0
+    vsited_states_count = 0  # zamkniete
+    processed_states_count = 0  # otwarte
+    maximum_recursion_deapth = 0
+    runtime = 0
 
-    # Tutaj możesz umieścić kod, który będzie korzystać z przekazanych argumentów
-    # np. wybór odpowiedniej funkcji na podstawie 'args.matrix' itd.
+    #metoda zwracająca pozycję zera z przekazanej planszy state
+    def find_zero(state):
+        for i in range(len(state)):
+            for j in range(len(state)):
+                if state[i][j] == 0:
+                    return i, j
 
+    end_time = time.time()  #koniec pomiaru czasu
+    runtime = end_time - start_time  #czas wykonania obliczeń w sekundach
 
 if __name__ == "__main__":
     main()
