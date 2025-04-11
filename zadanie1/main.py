@@ -2,11 +2,20 @@ import sys
 import numpy as np
 import time
 
+from bfs import *
+
+
+MOVES = {
+    'L': (0, -1),
+    'R': (0, 1),
+    'U': (-1, 0),
+    'D': (1, 0)
+}
 
 # uruchomienie: python main.py [parametry]
 def main():
     #sprawdzenie, czy podano odpowiednią liczbę argumentów
-    if len(sys.argv) < 5:
+    if len(sys.argv) < 6:
         print("Not enough arguments.")
         sys.exit(1)
 
@@ -16,13 +25,6 @@ def main():
     start_file = sys.argv[3]  #trzeci argument - plik z układem początkowym
     end_file = sys.argv[4] #czwarty argument - plik z rozwiązaniem
     additional_info_file = sys.argv[5] #piąty argument - plik z dodatkowymi informacjami o obliczeniach
-
-    '''moves={
-        'L':
-        'R':
-        'U':
-        'D':
-        }'''
 
     start_time = time.time()  #początek pomiaru czasu
 
@@ -54,9 +56,11 @@ def main():
             matrix.append(values)
         return matrix
 
-    strat_matrix = read_matrix_from_file(start_file)
+    start_matrix = read_matrix_from_file(start_file)
+    start_state = tuple(tuple(row) for row in start_matrix) #dwuwymiarową listę w krotkę krotek
 
 
+    path, visited, processed, max_depth = bfs(graph, start_state)
 
     end_time = time.time()  #koniec pomiaru czasu
     runtime = end_time - start_time  #czas wykonania obliczeń w sekundach
