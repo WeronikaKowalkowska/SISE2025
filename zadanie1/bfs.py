@@ -1,88 +1,80 @@
 from collections import deque
 
-success=((1,2,3,4),(5,6,7,8),(9,10,11,12),(13,14,15,0))
+#celowy stan puzzli 15
+goal_state = (
+    (1, 2, 3, 4),
+    (5, 6, 7, 8),
+    (9, 10, 11, 12),
+    (13, 14, 15, 0)
+)
 
-MOVES = {
-    'L': (0, -1),
-    'R': (0, 1),
-    'U': (-1, 0),
-    'D': (1, 0)
-}
 
-# def bfs(graph, root):
-#     if root==success:
-#         return True
-#     open_queue = deque([root])
-#     closed_set = set()
-#     while open_queue:
-#         state= open_queue.popleft()
-#         closed_set.add(state)
-#         for neighbor in graph[state]:
-#             if neighbor not in closed_set and neighbor not in open_queue:
-#                 if graph[state]==success:
-#                     return True #success
-#                 open_queue.append(neighbor)
-#     return False #failure
-def bfs(root):
-    if root==success:
-        return True
-    open_queue = deque([root])
-    closed_set = set()
-    parent={}
-    move_record = {}
+def bfs(start, moves):
+    queue = deque()     #otwarte stany
+    visited = set()      #odwiedzone stany
+    parent = {}         #rodzic bierzącego stanu
+    move_record = {}    #jaki ruch doprowadził do bierzącego stanu
 
-    open_queue.append((root, 0))  # (state, depth)
-    closed_set.add(root)
-    parent[root]=None
-    move_record[root] = None
+    queue.append((start, 0))  #pozycja startowa jest dodana do stanów otwartych z głębokością zero
+    visited.add(start)  #pozycja startowa jest dodana do stanów odwiedzonych
+    parent[start] = None
+    move_record[start] = None
 
-    max_depth = 50  #ZMNIEJSZYC
-    processed = 0
+    max_depth = 0   #maksymalna głębokość
+    processed = 0   #licznik przetworzonych węzłów
 
-    while open_queue:
-        # state,depth= open_queue.popleft()
-        state = open_queue.popleft()
-        processed+=1
-        # max_depth = max(max_depth, depth)
+    while queue:
+        current, depth = queue.popleft()    #pobieramy stan i jego głębokość z kolejki stanów otwartych
+        processed += 1
+        max_depth = max(max_depth, depth)
 
-        if state == success:
-            return True
+        if current == goal_state:
+            return reconstruct_path(parent, move_record, current), len(visited), processed, max_depth
 
-        #closed_set.add(state)
-        # for neighbor in graph[state]:
-        #     if neighbor not in closed_set and neighbor not in open_queue:
-        #         if graph[state]==success:
-        #             return True #success
-        #         open_queue.append(neighbor)
-        for move, (dx, dy) in MOVES.items():
-            new_state = make_move(state, dx, dy)
-            if new_state and new_state not in closed_set:
-                closed_set.add(new_state)
-                parent[new_state] = state
-                move_record[new_state] = move
-                open_queue.append((new_state, processed + 1))
-    return False #failure
+        for move in moves:
+            dx, dy = moves[move]
+            new_state = make_move(current, dx, dy)  #nowy stan na podstawie ruchu
+            if new_state is not None:      #jeżeli nowy stan istnieje
+                if new_state not in visited:     #jeżeli nowy stan nie był już odwiedzony
+                    visited.add(new_state)      #dodajemy do stanów odwiedzonych
+                    parent[new_state] = current     #zapisujemy poprzedni stan jako rodzica
+                    move_record[new_state] = move   #zapisujemy ruch jaki nas doprowadzil do nowego stanu
+                    queue.append((new_state, depth + 1))    #dodajemy do listy stanów otwartych z większą głębokością niż rodzic
+
+    return None, len(visited), processed, max_depth
+
+#metoda zwracająca pozycję zera z przekazanej planszy state
+def find_zero(state):
+    for i in range(len(state)):
+        for j in range(len(state[i])):
+            if state[i][j] == 0:
+                return i, j
 
 def make_move(state, dx, dy):
-    #state_list = [list(row) for row in state]
+    x, y = find_zero(state) #pozycja zera
 
-    state_list = list(state)
+    new_x = x + dx  #pozycje po przesunięciu
+    new_y = y + dy
 
-    x=0
-    y=0
-    # Znajdź pozycję 0
-    for i in range(dx):
-        for j in range(dy):
-            if state_list[i][j] == 0:
-                x, y = i, j
-                break
+    if 0 <= new_x < len(state) and 0 <= new_y < len(state[0]):      #sprawdzamy czy wartości po przesunięciu nie wyszły poza planszę
+        new_state = []
+        for row in state:
+            new_row = list(row) #kopiujemy poprzedni stan zamieniając krotkę na listę
+            new_state.append(new_row)
 
-    new_x, new_y = x + dx, y + dy
+        #przesuwamy zero na wybranną pozycje
+        new_state[x][y] = state[new_x][new_y]
+        new_state[new_x][new_y] = state[x][y]
 
-    # Sprawdź, czy nowa pozycja jest w granicach
-    if 0 <= new_x < dx and 0 <= new_y < dy:
-        # Zamień 0 z elementem docelowym
-        state_list[x][y], state_list[new_x][new_y] = state_list[new_x][new_y], state_list[x][y]
-        return tuple(tuple(row) for row in state_list)
+        return tuple(tuple(row) for row in new_state) #wztracamy nowy stan jako tuple of tuples
 
-    return None
+    return None #jeżeli ruch wyjdzie poza plansze
+
+#metoda do odtworzenia ścieżki ruchów, które doprowadziły od stanu początkowego do stanu końcowego
+def reconstruct_path(parent, move_record, end_state):
+    path = []
+    while parent[end_state]:    #dopóki stan ma rodzica, czyli dopóki nie jest to stan początkowy, cofamy się
+        path.append(move_record[end_state]) #zapisujemy ruch, który doprowadził do bierzącego stanu
+        end_state = parent[end_state]   #cofamy się do rodzica
+    path.reverse()  #oswracamy ściężkę, żeby mieć wsztsko od początku w dobrzej kolejności
+    return path
