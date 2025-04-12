@@ -3,6 +3,7 @@ import numpy as np
 import time
 from collections import deque
 from bfs import *
+from dfs import *
 
 #możliwe ruchy
 direction_map = {
@@ -52,8 +53,9 @@ def main():
     if strategy == "bfs":
         moves = {direction: direction_map[direction] for direction in parameter}
         path, visited, processed, max_depth  = bfs(start_state, moves)
-    # if strategy == "dfs":
-    #    #dopisać
+    if strategy == "dfs":
+        moves = {direction: direction_map[direction] for direction in parameter}
+        path, visited, processed, max_depth = dfs(start_state, moves)
     # if strategy == "astr":
     #  # dopisać
 
