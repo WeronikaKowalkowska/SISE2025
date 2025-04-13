@@ -53,19 +53,3 @@ def dfs (start, moves):
                         open_list.append((new_state, depth + 1)) #dodajemy do listy stanów otwartych z większą głębokością niż rodzic
 
     return None, len(visited), processed, actual_max_depth
-
-
-
-# def dfs(graph, root):
-#     open_list = []
-#     visited = set()
-#     open_list.append(root)
-#     while len(open_list) != 0:
-#         current = open_list.pop()
-#         if current not in visited:
-#             if success == current:
-#                 return True #success
-#             visited.add(current)
-#             for neighbor in reversed(graph[current]):
-#                 open_list.append(neighbor)
-#     return False #failure

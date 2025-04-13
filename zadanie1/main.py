@@ -1,9 +1,9 @@
 import sys
-import numpy as np
 import time
-from collections import deque
+
 from bfs import *
 from dfs import *
+from a_star import *
 
 #możliwe ruchy
 direction_map = {
@@ -49,6 +49,10 @@ def main():
     start_matrix = read_matrix_from_file(start_file)
     start_state = tuple(tuple(row) for row in start_matrix)
 
+    path = None
+    visited = None
+    processed = None
+    max_depth = None
 
     if strategy == "bfs":
         moves = {direction: direction_map[direction] for direction in parameter}
@@ -56,8 +60,8 @@ def main():
     if strategy == "dfs":
         moves = {direction: direction_map[direction] for direction in parameter}
         path, visited, processed, max_depth = dfs(start_state, moves)
-    # if strategy == "astr":
-    #  # dopisać
+    if strategy == "astr":
+        path, visited, processed, max_depth = astar(start_state, direction_map, parameter)
 
     end_time = time.time()
     runtime = end_time - start_time

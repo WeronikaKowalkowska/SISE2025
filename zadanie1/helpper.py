@@ -6,15 +6,15 @@ goal_state = (
     (13, 14, 15, 0)
 )
 
-#metoda zwracająca pozycję zera z przekazanej planszy state
-def find_zero(state):
+#metoda zwracająca pozycję liczby z przekazanej planszy state
+def find_number(state, number):
     for i in range(len(state)):
         for j in range(len(state[i])):
-            if state[i][j] == 0:
+            if state[i][j] == number:
                 return i, j
 
 def make_move(state, dx, dy):
-    x, y = find_zero(state) #pozycja zera
+    x, y = find_number(state, 0) #pozycja zera
 
     new_x = x + dx  #pozycje po przesunięciu
     new_y = y + dy
