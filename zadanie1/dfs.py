@@ -1,5 +1,7 @@
 from helpper import *
 
+#python3 main.py dfs RDUL 4x4_01_0001.txt 4x4_01_0001_dfs_rdul_sol.txt 4x4_01_0001_dfs_rdul_stats.txt
+
 #----PSEUDOKOD----
 '''def dfs(graph, root):
     open_list = []

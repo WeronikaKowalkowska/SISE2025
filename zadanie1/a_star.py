@@ -1,6 +1,9 @@
 from helpper import *
 import heapq
 
+#python3 main.py astar hamm 4x4_01_0001.txt 4x4_01_0001_astar_hamm_sol.txt 4x4_01_0001_astar_hamm_stats.txt
+#python3 main.py astar manh 4x4_01_0001.txt 4x4_01_0001_astar_manh_sol.txt 4x4_01_0001_astar_manh_stats.txt
+
 #----PSEUDOKOD----
 '''def astar(graph, start):
     open_priority_queue = heapq()

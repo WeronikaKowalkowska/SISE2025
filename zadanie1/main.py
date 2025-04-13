@@ -60,7 +60,7 @@ def main():
     if strategy == "dfs":
         moves = {direction: direction_map[direction] for direction in parameter}
         path, visited, processed, max_depth = dfs(start_state, moves)
-    if strategy == "astr":
+    if strategy == "astar":
         path, visited, processed, max_depth = astar(start_state, direction_map, parameter)
 
     end_time = time.time()

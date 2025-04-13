@@ -1,6 +1,8 @@
 from helpper import *
 from collections import deque
 
+#python3 main.py bfs RDUL 4x4_01_0001.txt 4x4_01_0001_bfs_rdul_sol.txt 4x4_01_0001_bfs_rdul_stats.txt
+
 #----PSEUDOKOD----
 '''def bfs(graph, root):
     if root==success:

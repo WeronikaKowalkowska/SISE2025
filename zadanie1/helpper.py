@@ -19,7 +19,7 @@ def make_move(state, dx, dy):
     new_x = x + dx  #pozycje po przesunięciu
     new_y = y + dy
 
-    if 0 <= new_x < len(state) and 0 <= new_y < len(state[0]):      #sprawdzamy czy wartości po przesunięciu nie wyszły poza planszę
+    if 0 <= new_x < len(state) and 0 <= new_y < len(state[0]):      #sprawdzamy, czy wartości po przesunięciu nie wyszły poza planszę
         new_state = []
         for row in state:
             new_row = list(row) #kopiujemy poprzedni stan zamieniając krotkę na listę
@@ -39,5 +39,5 @@ def reconstruct_path(parent, move_record, end_state):
     while parent[end_state]:    #dopóki stan ma rodzica, czyli dopóki nie jest to stan początkowy, cofamy się
         path.append(move_record[end_state]) #zapisujemy ruch, który doprowadził do bierzącego stanu
         end_state = parent[end_state]   #cofamy się do rodzica
-    path.reverse()  #oswracamy ściężkę, żeby mieć wsztsko od początku w dobrzej kolejności
+    path.reverse()  #oswracamy ścieżkę, żeby mieć wszystko od początku w dobrej kolejności
     return path
