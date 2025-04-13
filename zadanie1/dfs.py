@@ -32,8 +32,6 @@ def dfs (start, moves):
 
     while open_list:
         current, depth = open_list.pop()
-        if depth > max_depth:
-            return None, len(visited), processed, max_depth
         if current not in visited:
             if current == goal_state:
                 parent[current] = parent.get(current, None)
@@ -43,13 +41,14 @@ def dfs (start, moves):
             processed += 1
             actual_max_depth = max(actual_max_depth, depth)
 
-            for move in reversed(moves):
-                dx, dy = moves[move]
-                new_state = make_move(current, dx, dy)  # nowy stan na podstawie ruchu
-                if new_state is not None:  # jeżeli nowy stan istnieje
-                    if new_state not in visited:  # jeżeli nowy stan nie był już odwiedzony
-                        parent[new_state] = current  # zapisujemy poprzedni stan jako rodzica
-                        move_record[new_state] = move  # zapisujemy ruch, jaki nas doprowadził do nowego stanu
-                        open_list.append((new_state, depth + 1)) #dodajemy do listy stanów otwartych z większą głębokością niż rodzic
+            if depth < max_depth:   #rozwarza sąsiedzi tylko stanów o głębokości mniejszej niż maksymalna
+                for move in reversed(moves):
+                    dx, dy = moves[move]
+                    new_state = make_move(current, dx, dy)  # nowy stan na podstawie ruchu
+                    if new_state is not None:  # jeżeli nowy stan istnieje
+                        if new_state not in visited:  # jeżeli nowy stan nie był już odwiedzony
+                            parent[new_state] = current  # zapisujemy poprzedni stan jako rodzica
+                            move_record[new_state] = move  # zapisujemy ruch, jaki nas doprowadził do nowego stanu
+                            open_list.append((new_state, depth + 1)) #dodajemy do listy stanów otwartych z większą głębokością niż rodzic
 
     return None, len(visited), processed, actual_max_depth
