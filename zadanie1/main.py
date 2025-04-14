@@ -1,3 +1,4 @@
+import os
 import sys
 import time
 
@@ -12,6 +13,17 @@ direction_map = {
     'U': (-1, 0),
     'D': (1, 0)
 }
+
+# def open_files():
+#     start_files=[]
+#     end_files=[]
+#     for files in os.walk('./puzzles'):
+#         for file in files:
+#             start_files.append(file)
+#     for files in os.walk('./solved_puzzles'):
+#         for file in files:
+#             end_files.append(file)
+#     return end_files,start_files
 
 #kolojność przeszukowania ruchów
 moves = {}
@@ -60,7 +72,7 @@ def main():
     if strategy == "dfs":
         moves = {direction: direction_map[direction] for direction in parameter}
         path, visited, processed, max_depth = dfs(start_state, moves)
-    if strategy == "astar":
+    if strategy == "astr":
         path, visited, processed, max_depth = astar(start_state, direction_map, parameter)
 
     end_time = time.time()
