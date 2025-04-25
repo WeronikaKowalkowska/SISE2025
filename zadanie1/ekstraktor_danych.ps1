@@ -11,9 +11,9 @@
 
 $StatsFilenameRegex = '^[a-zA-Z0-9]+_[0-9]+_[0-9]+_[a-zA-Z]+_[a-zA-Z]+_stats.txt$'
 
-Get-ChildItem -File | Where-Object { $_.Name -match $StatsFilenameRegex } | ForEach-Object {
+Get-ChildItem -Path './solvings_organised/' -Recurse -File | Where-Object { $_.Name -match $StatsFilenameRegex } | ForEach-Object {
     $SplitFilename = $_.BaseName.Split("_")
     $Line = "{0} {1} {2} {3} " -f [int]$SplitFilename[1], [int]$SplitFilename[2], $SplitFilename[3], $SplitFilename[4]
-    $Line += Get-Content $_.Name
+    $Line += Get-Content $_.FullName
     Write-Output $Line
 }
