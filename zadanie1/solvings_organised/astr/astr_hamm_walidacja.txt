@@ -1,3 +1,0 @@
------ Summary -----
-Correct solutions: 413
-Incorrect solutions: 0
