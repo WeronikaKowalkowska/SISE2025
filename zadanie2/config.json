@@ -1,0 +1,7 @@
+{
+    "hidden_channel_neuron_count": 64,
+    "activation_function": "ReLu",
+    "learning_rate": 0.001,
+    "stop_criterion": 20
+}
+
