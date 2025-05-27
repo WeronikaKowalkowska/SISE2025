@@ -3,6 +3,8 @@ import glob
 import json
 import pandas as pd
 from collections import OrderedDict
+
+from pandas.core.interchange.dataframe_protocol import DataFrame
 from torchvision.ops import MLP
 import torch
 import torch.nn as nn
@@ -59,6 +61,7 @@ def main():
     # TEST - DYN
     training_data_f8_files = glob.glob(
         "./dane/f8/stat/f8_stat_*.csv")  # zwraca listę plików o nazwie pasującej do wzoru
+
     training_data_f8 = pd.concat(
         [pd.read_csv(f, header=None, names=['measured_x', 'measured_y', 'real_x', 'real_y']) for f in
          training_data_f8_files])  # łączy dane z wielu plików
@@ -84,8 +87,8 @@ def main():
     normalised_training_data = training_data.copy(deep=True)
     normalised_test_data = test_data.copy(deep=True)
 
-    normalised_training_data, xMin, xMax = normaliseTrainingData(normalised_training_data)
-    normalised_test_data = normaliseTestData(normalised_test_data, xMin, xMax)
+    normalised_training_data, input_scaler, output_scaler = normaliseTrainingData(normalised_training_data)
+    normalised_test_data = normaliseTestData(normalised_test_data, input_scaler, output_scaler)
 
     activation = []
     in_channels_count = 2  # const
@@ -158,57 +161,31 @@ def main():
             loss_test = loss_fn(output_test, target_test)
             epochs_loss_test.append(loss_test.item())
 
-    # torch.save(multilayer_perceptron, "multilayer_perceptron")
-    # model = torch.load("multilayer_perceptron")
-    # model.eval()
-
     multilayer_perceptron.eval()
-
-    learning_result_x_normalised = []
-    learning_result_y_normalised = []
 
     with torch.no_grad():
         input_test = torch.tensor(
             normalised_test_data[["measured_x", "measured_y"]].values, dtype=torch.float32
         )
         output_test = multilayer_perceptron(input_test)
-        print(output_test[:10])
         output_np = output_test.numpy()
-        learning_result_x_normalised = output_np[:, 0]  # pierwsza kolumna
-        learning_result_y_normalised = output_np[:, 1]  # druga kolumna
 
-    print(learning_result_x_normalised[:10])
-    print(learning_result_y_normalised[:10])
+    # denormalizowanie danych
+    learning_result = deNormaliseTestData(output_np, output_scaler)
+    learning_result_x = learning_result[:, 0]
+    learning_result_y = learning_result[:, 1]
 
     # zapisywanie do plików csv
     with open('MSE.csv', 'w') as f:
         for epoch in range(stop_criterion):
-            f.writelines(str(epochs_loss_training[epoch]) + ',' + str(epochs_loss_test[epoch]) + ',\n')
-
-    # odnormalizować
-    # learning_result_x = deNormaliseTestData(learning_result_x_normalised, xMin, xMax)
-    # learning_result_y =  deNormaliseTestData(learning_result_y_normalised, xMin, xMax)
-
-    # odnarmolizowanie wszysko psuje!!!!!!
-    print(learning_result_x_normalised)
-    print(learning_result_y_normalised)
-
-    learning_result_x = deNormaliseTestData(
-        learning_result_x_normalised,
-        xMin["real_x"],
-        xMax["real_x"]
-    )
-
-    learning_result_y = deNormaliseTestData(
-        learning_result_y_normalised,
-        xMin["real_y"],
-        xMax["real_y"]
-    )
+            f.writelines(str(epochs_loss_training[epoch]) + ',' + str(epochs_loss_test[epoch]) + '\n')
 
     with open('corr_values.csv', 'w') as f:
         for i in range(len(learning_result_x)):
-            f.writelines(str(learning_result_x[i]) + ',' + str(learning_result_y[i]) + ',\n')
-    print("-------------dzialam----------- ")
+            f.writelines(str(learning_result_x[i]) + ',' + str(learning_result_y[i]) + '\n')
+
+    # zapisywanie perceptronu, do łatwego odtworzenia poprzez: torch.load("filename")
+    torch.save(multilayer_perceptron, "multilayer_perceptron")
 
 
 if __name__ == "__main__":
