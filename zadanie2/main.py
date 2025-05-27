@@ -87,8 +87,8 @@ def main():
     normalised_training_data = training_data.copy(deep=True)
     normalised_test_data = test_data.copy(deep=True)
 
-    normalised_training_data, input_scaler, output_scaler = normaliseTrainingData(normalised_training_data)
-    normalised_test_data = normaliseTestData(normalised_test_data, input_scaler, output_scaler)
+    normalised_training_data, input_scalers, output_scalers = normaliseTrainingData(normalised_training_data)
+    normalised_test_data = normaliseTestData(normalised_test_data, input_scalers, output_scalers)
 
     activation = []
     in_channels_count = 2  # const
@@ -171,9 +171,9 @@ def main():
         output_np = output_test.numpy()
 
     # denormalizowanie danych
-    learning_result = deNormaliseTestData(output_np, output_scaler)
-    learning_result_x = learning_result[:, 0]
-    learning_result_y = learning_result[:, 1]
+    learning_result = deNormaliseTestData(output_np, output_scalers)
+    learning_result_x = learning_result["real_x"]
+    learning_result_y = learning_result["real_y"]
 
     # zapisywanie do plików csv
     with open('MSE.csv', 'w') as f:
