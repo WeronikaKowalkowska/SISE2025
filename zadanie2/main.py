@@ -8,6 +8,8 @@ import torch
 import torch.nn as nn
 from torch.optim import Adam as TorchAdam
 
+from func import *
+
 '''
 Parametry uczenia:
 - Adam -> jeden parametr (współczynnik nauki) 
@@ -33,20 +35,6 @@ JAK SKOŃCZY NAUKĘ TO NIECH PROGRAM ZWROCI 2 PLIKI CSV.:
 
 WYKRESY W OSOBNYM PLIKU Z TYCH 2 PLIKÓW CSV - NIE DOŁĄCZAĆ DO ZIPA KOŃCOWEGO 
 '''
-
-
-def normaliseTrainingData(what):
-    xMin = min(what)
-    xMax = max(what)
-    for i in range(len(what)):
-        what[i] = (what[i] - xMin) / (xMax - xMin)
-    return what, xMin, xMax
-
-
-def normaliseTestData(what, xMin, xMax):
-    for i in range(len(what)):
-        what[i] = (what[i] - xMin) / (xMax - xMin)
-    return what
 
 
 def main():
@@ -131,37 +119,91 @@ def main():
     # https://machinelearningmastery.com/building-multilayer-perceptron-models-in-pytorch/
     optimizer = torch.optim.Adam(multilayer_perceptron.parameters(), lr=learning_rate)
 
-    multilayer_perceptron.train()
-
     epochs_loss_training = []
     epochs_loss_test = []
     # trenowanie
     for epoch in range(stop_criterion):
-        output = multilayer_perceptron(normalised_training_data["measured_x"], normalised_training_data["measured_y"])
-        loss = nn.MSELoss(output, [normalised_training_data["real_x"], normalised_training_data["real_y"]])
-        epochs_loss_training.append(loss)
+        # .values konwertuje pandas.DataFrame do numpy.ndarray
+        # tworzy macierz o wymiarach [measured_x, measured_y]
+        input_tensor = torch.tensor(
+            normalised_training_data[["measured_x", "measured_y"]].values, dtype=torch.float32
+        )
+        output = multilayer_perceptron(input_tensor)
+
+        target_tensor = torch.tensor(
+            normalised_training_data[["real_x", "real_y"]].values, dtype=torch.float32
+        )
+        multilayer_perceptron.train()
+
+        loss_fn = nn.MSELoss()
+        loss = loss_fn(output, target_tensor)
+
+        epochs_loss_training.append(loss.item())
 
         optimizer.zero_grad()
         loss.backward()
         optimizer.step()
 
-    # testowanie
-    multilayer_perceptron.eval()
-    learning_result_x = []  # odnormalizować
-    learning_result_y = []  # odnormalizować
+        # testowanie (bez gradientów)
+        multilayer_perceptron.eval()
+        with torch.no_grad():
+            input_test = torch.tensor(
+                normalised_test_data[["measured_x", "measured_y"]].values, dtype=torch.float32
+            )
+            target_test = torch.tensor(
+                normalised_test_data[["real_x", "real_y"]].values, dtype=torch.float32
+            )
+            output_test = multilayer_perceptron(input_test)
+            loss_test = loss_fn(output_test, target_test)
+            epochs_loss_test.append(loss_test.item())
 
-    #for epoch in range(stop_criterion):
+    # torch.save(multilayer_perceptron, "multilayer_perceptron")
+    # model = torch.load("multilayer_perceptron")
+    # model.eval()
+
+    multilayer_perceptron.eval()
+
+    learning_result_x_normalised = []  # odnormalizować
+    learning_result_y_normalised = []  # odnormalizować
+
+    with torch.no_grad():
+        input_test = torch.tensor(
+            normalised_test_data[["measured_x", "measured_y"]].values, dtype=torch.float32
+        )
+        output_test = multilayer_perceptron(input_test)
+        output_np = output_test.numpy()
+        learning_result_x_normalised = output_np[:, 0]  # pierwsza kolumna
+        learning_result_y_normalised = output_np[:, 1]  # druga kolumna
 
     # zapisywanie do plików csv
     with open('MSE.csv', 'w') as f:
         for epoch in range(stop_criterion):
-            f.writelines(str(epochs_loss_training[epoch]) + ',' + str(epochs_loss_test[epoch]))
+            f.writelines(str(epochs_loss_training[epoch]) + ',' + str(epochs_loss_test[epoch]) + ',\n')
 
     # odnormalizować
+    # learning_result_x = deNormaliseTestData(learning_result_x_normalised, xMin, xMax)
+    # learning_result_y =  deNormaliseTestData(learning_result_y_normalised, xMin, xMax)
+
+    # odnarmolizowanie wszysko psuje!!!!!!
+    print(learning_result_x_normalised)
+    print(learning_result_y_normalised)
+
+    learning_result_x = deNormaliseTestData(
+        learning_result_x_normalised,
+        xMin["real_x"],
+        xMax["real_x"]
+    )
+
+    learning_result_y = deNormaliseTestData(
+        learning_result_y_normalised,
+        xMin["real_y"],
+        xMax["real_y"]
+    )
 
     with open('corr_values.csv', 'w') as f:
-        for i in len(learning_result_x):
-            f.writelines(str(learning_result_x[i] + ',' + str(learning_result_y[i])))
+        for i in range(len(learning_result_x)):
+            f.writelines(str(learning_result_x[i]) + ',' + str(learning_result_y[i]) + ',\n')
+    print("-------------dzialam----------- ")
 
 
 if __name__ == "__main__":
