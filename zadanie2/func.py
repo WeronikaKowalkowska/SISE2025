@@ -1,5 +1,3 @@
-
-
 def normaliseTrainingData(what):
     xMin = what.min()
     xMax = what.max()
@@ -12,6 +10,7 @@ def normaliseTestData(what, xMin, xMax):
     for col in what.columns:
         what[col] = (what[col] - xMin[col]) / (xMax[col] - xMin[col])
     return what
+
 
 def deNormaliseTestData(what, xMin, xMax):
     denormalised = []

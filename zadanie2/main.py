@@ -55,7 +55,8 @@ def main():
     training_data = pd.DataFrame()
     test_data = pd.DataFrame()
 
-    # TRENING - STAT   ;   TEST - DYN
+    # TRENING - STAT
+    # TEST - DYN
     training_data_f8_files = glob.glob(
         "./dane/f8/stat/f8_stat_*.csv")  # zwraca listę plików o nazwie pasującej do wzoru
     training_data_f8 = pd.concat(
@@ -86,12 +87,10 @@ def main():
     normalised_training_data, xMin, xMax = normaliseTrainingData(normalised_training_data)
     normalised_test_data = normaliseTestData(normalised_test_data, xMin, xMax)
 
-    in_channels_count = 2  # const
-    # the last value in the hidden_channels list is treated as the output size
-    out_channels_count = 2  # const
-    hidden_channels_list = [hidden_channel_neuron_count, out_channels_count]
-
     activation = []
+    in_channels_count = 2  # const
+    out_channels_count = 2  # const
+    hidden_channels_list = [hidden_channel_neuron_count]
 
     # funkcji logistycznej, tangensu hiperbolicznego, jednostronnie obciętej funkcji liniowej (ReLU)
     if (activation_function_letter == "ReLu"):
@@ -117,25 +116,26 @@ def main():
 
     # metoda optymalizacji - Adam
     # https://machinelearningmastery.com/building-multilayer-perceptron-models-in-pytorch/
+    loss_fn = nn.MSELoss()
     optimizer = torch.optim.Adam(multilayer_perceptron.parameters(), lr=learning_rate)
 
     epochs_loss_training = []
     epochs_loss_test = []
+
     # trenowanie
     for epoch in range(stop_criterion):
-        # .values konwertuje pandas.DataFrame do numpy.ndarray
-        # tworzy macierz o wymiarach [measured_x, measured_y]
-        input_tensor = torch.tensor(
-            normalised_training_data[["measured_x", "measured_y"]].values, dtype=torch.float32
-        )
-        output = multilayer_perceptron(input_tensor)
+        multilayer_perceptron.train()
 
+        input_tensor = torch.tensor(  # tworzy macierz o wymiarach [measured_x, measured_y]
+            normalised_training_data[["measured_x", "measured_y"]].values, dtype=torch.float32
+            # .values konwertuje pandas.DataFrame do numpy.ndarray
+
+        )
         target_tensor = torch.tensor(
             normalised_training_data[["real_x", "real_y"]].values, dtype=torch.float32
         )
-        multilayer_perceptron.train()
 
-        loss_fn = nn.MSELoss()
+        output = multilayer_perceptron(input_tensor)
         loss = loss_fn(output, target_tensor)
 
         epochs_loss_training.append(loss.item())
@@ -146,6 +146,7 @@ def main():
 
         # testowanie (bez gradientów)
         multilayer_perceptron.eval()
+
         with torch.no_grad():
             input_test = torch.tensor(
                 normalised_test_data[["measured_x", "measured_y"]].values, dtype=torch.float32
@@ -163,17 +164,21 @@ def main():
 
     multilayer_perceptron.eval()
 
-    learning_result_x_normalised = []  # odnormalizować
-    learning_result_y_normalised = []  # odnormalizować
+    learning_result_x_normalised = []
+    learning_result_y_normalised = []
 
     with torch.no_grad():
         input_test = torch.tensor(
             normalised_test_data[["measured_x", "measured_y"]].values, dtype=torch.float32
         )
         output_test = multilayer_perceptron(input_test)
+        print(output_test[:10])
         output_np = output_test.numpy()
         learning_result_x_normalised = output_np[:, 0]  # pierwsza kolumna
         learning_result_y_normalised = output_np[:, 1]  # druga kolumna
+
+    print(learning_result_x_normalised[:10])
+    print(learning_result_y_normalised[:10])
 
     # zapisywanie do plików csv
     with open('MSE.csv', 'w') as f:
