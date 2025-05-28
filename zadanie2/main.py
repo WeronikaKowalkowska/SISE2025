@@ -7,6 +7,7 @@ import pandas as pd
 from collections import OrderedDict
 
 from pandas.core.interchange.dataframe_protocol import DataFrame
+from scipy.io.wavfile import write
 from torchvision.ops import MLP
 import torch
 import torch.nn as nn
@@ -86,11 +87,15 @@ def main():
     training_data = pd.concat([training_data_f8, training_data_f10])
     test_data = pd.concat([test_data_f8, test_data_f10])
 
+    #test_data.to_csv("test_data.csv", index=False, header=False)
+
     normalised_training_data = training_data.copy(deep=True)
     normalised_test_data = test_data.copy(deep=True)
 
     normalised_training_data, input_scalers, output_scalers = normaliseTrainingData(normalised_training_data)
     normalised_test_data = normaliseTestData(normalised_test_data, input_scalers, output_scalers)
+
+    #normalised_test_data.to_csv("normalised_test_data.csv", index=False, header=False)
 
     activation = []
     in_channels_count = 2  # const

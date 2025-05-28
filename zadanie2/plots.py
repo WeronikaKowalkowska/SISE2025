@@ -7,37 +7,9 @@ import matplotlib.ticker as ticker
 from itertools import cycle
 from sklearn.metrics import mean_squared_error
 import glob
-from func import *
-from func import normaliseTestData
 
-training_data_f8_files = glob.glob("./dane/f8/stat/f8_stat_*.csv")  # zwraca listę plików o nazwie pasującej do wzoru
-training_data_f8 = pd.concat(
-    [pd.read_csv(f, header=None, names=['measured_x', 'measured_y', 'real_x', 'real_y']) for f in
-     training_data_f8_files])  # łączy dane z wielu plików
-
-training_data_f10_files = glob.glob("./dane/f10/stat/f10_stat_*.csv")
-training_data_f10 = pd.concat(
-    [pd.read_csv(f, header=None, names=['measured_x', 'measured_y', 'real_x', 'real_y']) for f in
-     training_data_f10_files])
-
-test_data_f8_files = glob.glob("./dane/f8/dyn/f8_dyn_*.csv")
-test_data_f8 = pd.concat(
-    [pd.read_csv(f, header=None, names=['measured_x', 'measured_y', 'real_x', 'real_y']) for f in
-     test_data_f8_files])
-
-test_data_f10_files = glob.glob("./dane/f10/dyn/f10_dyn_*.csv")
-test_data_f10 = pd.concat(
-    [pd.read_csv(f, header=None, names=['measured_x', 'measured_y', 'real_x', 'real_y']) for f in
-     test_data_f10_files])
-
-training_data = pd.concat([training_data_f8, training_data_f10])
-test_data = pd.concat([test_data_f8, test_data_f10])
-
-normalised_training_data = training_data.copy(deep=True)
-normalised_test_data = test_data.copy(deep=True)
-
-normalised_training_data, input_scalers, output_scalers = normaliseTrainingData(normalised_training_data)
-normalised_test_data = normaliseTestData(normalised_test_data, input_scalers, output_scalers)
+test_data = pd.read_csv("test_data.csv", header=None, names=['measured_x', 'measured_y', 'real_x', 'real_y'])
+normalised_test_data = pd.read_csv("normalised_test_data.csv", header=None, names=['measured_x', 'measured_y', 'real_x', 'real_y'])
 
 MSE_files = glob.glob("./MSE_*.csv")
 MSE_dataframes = {}
