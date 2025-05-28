@@ -60,18 +60,19 @@ palette = cycle(plt.rcParams['axes.prop_cycle'].by_key()['color'])
 plt.figure(figsize=(12, 6))
 for name, df in MSE_dataframes.items():
     epochs = range(1, len(df["training_errors"]) + 1)
-    label = name.replace("MSE_", "")
+    label = name.replace("MSE_", "Wariant sieci: ")
     color = next(palette)
     plt.plot(epochs, df["training_errors"], label=label, color=color)
 plt.xlabel("Epoka")
 plt.ylabel("Błąd MSE")
 plt.title("Porównanie błędu MSE w czasie uczenia dla różnych wariantów sieci")
-plt.legend(title="Wariant sieci")
+plt.legend()
 ax = plt.gca()  # pobierz aktualną oś
 ax.set_xlim(left=0)
 ax.xaxis.set_major_locator(ticker.MultipleLocator(10))  # wymuszenie całkowitych wartości na osi X
 plt.grid(True)
 plt.tight_layout()
+plt.savefig("plot_1.png", dpi=300)
 plt.show()
 
 MSE_test = mean_squared_error(normalised_test_data[["measured_x", "measured_y"]], normalised_test_data[["real_x", "real_y"]])
@@ -81,19 +82,20 @@ palette = cycle(plt.rcParams['axes.prop_cycle'].by_key()['color'])
 plt.figure(figsize=(12, 6))
 for name, df in MSE_dataframes.items():
     epochs = range(1, len(df["test_errors"]) + 1)
-    label = name.replace("MSE_", "")
+    label = name.replace("MSE_", "Wariant sieci: ")
     color = next(palette)
     plt.plot(epochs, df["test_errors"], label=label, color=color)
 plt.axhline(y=MSE_test, color='hotpink', linestyle='--',  label='Pomiary dynamiczne')
 plt.xlabel("Epoka")
 plt.ylabel("Błąd MSE")
 plt.title("Porównanie błędu MSE w czasie testowania dla różnych wariantów sieci")
-plt.legend(title="Wariant sieci")
+plt.legend()
 ax = plt.gca()  # pobierz aktualną oś
 ax.set_xlim(left=0)
 ax.xaxis.set_major_locator(ticker.MultipleLocator(10))  # wymuszenie całkowitych wartości na osi X
 plt.grid(True)
 plt.tight_layout()
+plt.savefig("plot_2.png", dpi=300)
 plt.show()
 
 def calculate_cdf(errors):
@@ -132,6 +134,7 @@ plt.title("Dystrybuanta błędów predykcji dla różnych wariantów sieci")
 plt.legend()
 plt.grid(True)
 plt.tight_layout()
+plt.savefig("plot_3.png", dpi=300)
 plt.show()
 
 
@@ -166,4 +169,5 @@ plt.title("Porównanie wyników pomiarów dynamicznych dla najlepszych wariantó
 plt.legend()
 plt.grid(True)
 plt.tight_layout()
+plt.savefig("plot_4.png", dpi=300)
 plt.show()
