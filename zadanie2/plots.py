@@ -55,13 +55,6 @@ for file_path in corrected_values_files:
     df = pd.read_csv(file_path, header=None, names=["real_x", "real_y"])
     corrected_values_dataframes[base_name] = df
 
-corrected_values_normalised_dataframes = {}
-MSE_test = {}
-
-for name, df in corrected_values_dataframes.items():
-     corrected_values_normalised_dataframes[name] = normaliseTestDataOutput(df.copy(deep=True), output_scalers)
-     MSE_test[name] = mean_squared_error(corrected_values_normalised_dataframes[name], normalised_test_data[["real_x", "real_y"]])
-
 # 1) WYKRES 1 (training_errors and epochs) -> x - epochs; y - training_errors; + każdemu z wariantów sieci powinna odpowiadać linia o innym kolorze
 palette = cycle(plt.rcParams['axes.prop_cycle'].by_key()['color'])
 plt.figure(figsize=(12, 6))
@@ -80,16 +73,17 @@ plt.grid(True)
 plt.tight_layout()
 plt.show()
 
+MSE_test = mean_squared_error(normalised_test_data[["measured_x", "measured_y"]], normalised_test_data[["real_x", "real_y"]])
+
 # 2) WYKRES 2 (test_errors and epochs) -> x - epochs; y - test_errors; + pozioma linia ciągnąca się przez całą szerokość wykresu na wysokości odpowiadającej wartości błędu średniokwadratowego wyznaczonego dla zmierzonych wartości występujących w zbiorze testowym (PRZESKALOWAĆ)
 palette = cycle(plt.rcParams['axes.prop_cycle'].by_key()['color'])
 plt.figure(figsize=(12, 6))
 for name, df in MSE_dataframes.items():
     epochs = range(1, len(df["test_errors"]) + 1)
     label = name.replace("MSE_", "")
-    mse_reference = MSE_test[name.replace("MSE_", "corr_values_")]
     color = next(palette)
     plt.plot(epochs, df["test_errors"], label=label, color=color)
-    plt.axhline(y=mse_reference, color=color, linestyle='--')
+plt.axhline(y=MSE_test, color='pink', linestyle='--')
 plt.xlabel("Epoka")
 plt.ylabel("Błąd MSE")
 plt.title("Porównanie błędu MSE w czasie testowania dla różnych wariantów sieci")
@@ -124,7 +118,7 @@ palette = cycle(plt.rcParams['axes.prop_cycle'].by_key()['color'])
 plt.figure(figsize=(12, 6))
 for name in sorted(cdf_data):
     color = next(palette)
-    label = name.replace("corr_values_", "")
+    label = name.replace("corr_values_", "Wariant sieci: ")
     sorted_errors, cdf = cdf_data[name]
     plt.plot(sorted_errors, cdf, label=label, color=color)
 
@@ -133,10 +127,43 @@ plt.plot(baseline_sorted, baseline_cdf, linestyle='--', color='black', label='Po
 plt.xlabel("Błąd (mm)")
 plt.ylabel("Prawdopodobieństwo skumulowane (CDF)")
 plt.title("Dystrybuanta błędów predykcji dla różnych wariantów sieci")
-plt.legend(title="Wariant sieci")
+plt.legend()
 plt.grid(True)
 plt.tight_layout()
 plt.show()
 
+
+best_files = glob.glob("./corr_values_*_best.csv")
+best_dataframes = {}
+
+for file_path in best_files:
+    base_name = os.path.splitext(os.path.basename(file_path))[0]
+    df = pd.read_csv(file_path, header=None, names=["real_x", "real_y"])
+    best_dataframes[base_name] = df
+
+
 # 4) WYKRES 4 - skorygowane wartości wszystkich wyników pomiarów dynamicznych uzyskane przez ten spośród wybranych wariantów sieci, który wykazał się największą skutecznością korygowania błędów
 
+measured_corr = {}
+
+
+palette = cycle(plt.rcParams['axes.prop_cycle'].by_key()['color'])
+plt.figure(figsize=(12, 6))
+
+plt.scatter(test_data["measured_x"],test_data["measured_y"], color='pink', label="Wartości zmierzone")
+
+for name, df in best_dataframes.items():
+    measured_corr[name] = df[["real_x", "real_y"]]
+    label = name.replace("corr_values_", "Wariant sieci: ")
+    color = next(palette)
+    plt.scatter(df["real_x"], df["real_y"], color=color, label=label.replace("_best", ""))
+
+plt.scatter(test_data["real_x"],test_data["real_y"], color='blue', label="Wartości rzeczywiste")
+
+plt.xlabel("Wartość x")
+plt.ylabel("Wartość y ")
+plt.title("Porównanie wyników pomiarów dynamicznych dla najlepszych wariantów sieci")
+plt.legend()
+plt.grid(True)
+plt.tight_layout()
+plt.show()
