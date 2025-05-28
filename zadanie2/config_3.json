@@ -1,0 +1,8 @@
+{
+    "hidden_channel_neuron_count": 160,
+    "activation_function": "Sigmoid",
+    "learning_rate": 0.008,
+    "stop_criterion": 90
+}
+
+

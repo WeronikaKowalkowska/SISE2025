@@ -68,7 +68,8 @@ plt.ylabel("Błąd MSE")
 plt.title("Porównanie błędu MSE w czasie uczenia dla różnych wariantów sieci")
 plt.legend(title="Wariant sieci")
 ax = plt.gca()  # pobierz aktualną oś
-ax.xaxis.set_major_locator(ticker.MultipleLocator(1))  # wymuszenie całkowitych wartości na osi X
+ax.set_xlim(left=0)
+ax.xaxis.set_major_locator(ticker.MultipleLocator(10))  # wymuszenie całkowitych wartości na osi X
 plt.grid(True)
 plt.tight_layout()
 plt.show()
@@ -83,13 +84,14 @@ for name, df in MSE_dataframes.items():
     label = name.replace("MSE_", "")
     color = next(palette)
     plt.plot(epochs, df["test_errors"], label=label, color=color)
-plt.axhline(y=MSE_test, color='pink', linestyle='--')
+plt.axhline(y=MSE_test, color='hotpink', linestyle='--',  label='Pomiary dynamiczne')
 plt.xlabel("Epoka")
 plt.ylabel("Błąd MSE")
 plt.title("Porównanie błędu MSE w czasie testowania dla różnych wariantów sieci")
 plt.legend(title="Wariant sieci")
 ax = plt.gca()  # pobierz aktualną oś
-ax.xaxis.set_major_locator(ticker.MultipleLocator(1))  # wymuszenie całkowitych wartości na osi X
+ax.set_xlim(left=0)
+ax.xaxis.set_major_locator(ticker.MultipleLocator(10))  # wymuszenie całkowitych wartości na osi X
 plt.grid(True)
 plt.tight_layout()
 plt.show()
@@ -122,7 +124,7 @@ for name in sorted(cdf_data):
     sorted_errors, cdf = cdf_data[name]
     plt.plot(sorted_errors, cdf, label=label, color=color)
 
-plt.plot(baseline_sorted, baseline_cdf, linestyle='--', color='black', label='Pomiary dynamiczne')
+plt.plot(baseline_sorted, baseline_cdf, linestyle='--', color='hotpink', label='Pomiary dynamiczne')
 
 plt.xlabel("Błąd (mm)")
 plt.ylabel("Prawdopodobieństwo skumulowane (CDF)")
@@ -143,9 +145,7 @@ for file_path in best_files:
 
 
 # 4) WYKRES 4 - skorygowane wartości wszystkich wyników pomiarów dynamicznych uzyskane przez ten spośród wybranych wariantów sieci, który wykazał się największą skutecznością korygowania błędów
-
 measured_corr = {}
-
 
 palette = cycle(plt.rcParams['axes.prop_cycle'].by_key()['color'])
 plt.figure(figsize=(12, 6))
@@ -156,7 +156,7 @@ for name, df in best_dataframes.items():
     measured_corr[name] = df[["real_x", "real_y"]]
     label = name.replace("corr_values_", "Wariant sieci: ")
     color = next(palette)
-    plt.scatter(df["real_x"], df["real_y"], color=color, label=label.replace("_best", ""))
+    plt.scatter(df["real_x"], df["real_y"], color=color, label=label.replace("_config", "").replace("_best", ""))
 
 plt.scatter(test_data["real_x"],test_data["real_y"], color='blue', label="Wartości rzeczywiste")
 

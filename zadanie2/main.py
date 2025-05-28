@@ -1,6 +1,8 @@
 import sys
 import glob
 import json
+from fileinput import filename
+
 import pandas as pd
 from collections import OrderedDict
 
@@ -41,7 +43,7 @@ WYKRESY W OSOBNYM PLIKU Z TYCH 2 PLIKÓW CSV - NIE DOŁĄCZAĆ DO ZIPA KOŃCOWEG
 
 def main():
     if len(sys.argv) < 2:
-        print("Usage: python main.py config.json")
+        print("Usage: python main.py config_*.json")
         sys.exit(1)
 
     config_file = sys.argv[1]
@@ -176,16 +178,18 @@ def main():
     learning_result_y = learning_result["real_y"]
 
     # zapisywanie do plików csv
-    with open('MSE_1.csv', 'w') as f:
+    filename=('MSE_'+config_file+'.csv').replace(".json", "")
+    with open(filename, 'w') as f:
         for epoch in range(stop_criterion):
             f.writelines(str(epochs_loss_training[epoch]) + ',' + str(epochs_loss_test[epoch]) + '\n')
 
-    with open('corr_values_1_best.csv', 'w') as f:
+    filename = ('corr_values_'+config_file+'_best'+'.csv').replace(".json", "")
+    with open(filename, 'w') as f:
         for i in range(len(learning_result_x)):
             f.writelines(str(learning_result_x[i]) + ',' + str(learning_result_y[i]) + '\n')
 
     # zapisywanie perceptronu, do łatwego odtworzenia poprzez: torch.load("filename")
-    torch.save(multilayer_perceptron, "multilayer_perceptron")
+   # torch.save(multilayer_perceptron, "multilayer_perceptron")
 
 
 if __name__ == "__main__":

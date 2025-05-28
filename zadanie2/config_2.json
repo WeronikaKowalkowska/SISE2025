@@ -1,0 +1,7 @@
+{
+    "hidden_channel_neuron_count": 100,
+    "activation_function": "Tanh",
+    "learning_rate": 0.005 ,
+    "stop_criterion": 60
+}
+
