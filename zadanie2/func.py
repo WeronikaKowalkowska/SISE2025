@@ -41,6 +41,15 @@ def normaliseTestData(df, input_scalers, output_scalers):
     })
     return normalised_df
 
+def normaliseTestDataOutput(df,output_scalers):
+    normalised_output_x_array = output_scalers["real_x"].transform(df[["real_x"]])
+    normalised_output_y_array = output_scalers["real_y"].transform(df[["real_y"]])
+
+    normalised_df = pd.DataFrame({
+        "real_x": normalised_output_x_array.flatten(),
+        "real_y": normalised_output_y_array.flatten()
+    })
+    return normalised_df
 
 def deNormaliseTestData(normalised_array, output_scalers):
     denormalised_array_x = output_scalers["real_x"].inverse_transform(normalised_array[:, 0].reshape(-1, 1))

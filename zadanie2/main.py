@@ -176,11 +176,11 @@ def main():
     learning_result_y = learning_result["real_y"]
 
     # zapisywanie do plików csv
-    with open('MSE.csv', 'w') as f:
+    with open('MSE_1.csv', 'w') as f:
         for epoch in range(stop_criterion):
             f.writelines(str(epochs_loss_training[epoch]) + ',' + str(epochs_loss_test[epoch]) + '\n')
 
-    with open('corr_values.csv', 'w') as f:
+    with open('corr_values_1.csv', 'w') as f:
         for i in range(len(learning_result_x)):
             f.writelines(str(learning_result_x[i]) + ',' + str(learning_result_y[i]) + '\n')
 
