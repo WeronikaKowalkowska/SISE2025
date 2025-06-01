@@ -4,6 +4,7 @@ import json
 from fileinput import filename
 
 import pandas as pd
+import numpy as np
 from collections import OrderedDict
 
 from pandas.core.interchange.dataframe_protocol import DataFrame
@@ -14,32 +15,6 @@ import torch.nn as nn
 from torch.optim import Adam as TorchAdam
 
 from func import *
-
-'''
-Parametry uczenia:
-- Adam -> jeden parametr (współczynnik nauki) 
-- Zbadać jak wartość wpływa na naukę, zaczynać nie od dużej liczby - zacząć od 1 tysięcznej 
-
-Plik konfiguracyjny:
-- może być Jason(przekazywany jak argument) lub argumenty przekazania, lub graficzny interfejs 
-
-Kryterium zatrzymywania:
-- kryterium wcześniejszego zatrzymywania (można dodatkowo - tylko opisać w sprawozdaniu!!!!!!!) 
-- metodą prób i błędów, znaleźć ile epok wystarczy -> kryterium stopu to epoka (np. osiągniecie 20 epok)
-- uczymy, aż poziom błędu średnio-kwadratowego lub osiągniecie epok (żeby się nie zapętlił)
-
-Każdy egzemplarz sieci (te same parametry nauki, ale inne początkowe wagi (są losowane)) ma 3 egzemplarzy
-Każdy model sieci ma swój plik konfiguracyjny (łatwo uchuramiać)
-
-Musimy wybrać najlepszy wariat architektury do wykresów 
-
-JAK SKOŃCZY NAUKĘ TO NIECH PROGRAM ZWROCI 2 PLIKI CSV.:
-1. 2 KOLUMNY: (EPOKA)  BŁĄD NA ZBIORZE TRENINGOWYM, TESOWYM (TO DO WYKRESOW 1,2)
-2. SKORYGOWANE WARTOŚCI 2 KOLUMNY(PRZELICZONE NA ORYGINALNĄ SKALĘ): X I Y SKORYGOWANE NA KONIEĆ NAUKI NA PODSTAWIE DANYCH TESTOWYCH (TO DO WYKRESOW 3,4)
-
-
-WYKRESY W OSOBNYM PLIKU Z TYCH 2 PLIKÓW CSV - NIE DOŁĄCZAĆ DO ZIPA KOŃCOWEGO 
-'''
 
 
 def main():
@@ -87,7 +62,7 @@ def main():
     training_data = pd.concat([training_data_f8, training_data_f10])
     test_data = pd.concat([test_data_f8, test_data_f10])
 
-    #test_data.to_csv("test_data.csv", index=False, header=False)
+    # test_data.to_csv("test_data.csv", index=False, header=False)
 
     normalised_training_data = training_data.copy(deep=True)
     normalised_test_data = test_data.copy(deep=True)
@@ -95,7 +70,7 @@ def main():
     normalised_training_data, input_scalers, output_scalers = normaliseTrainingData(normalised_training_data)
     normalised_test_data = normaliseTestData(normalised_test_data, input_scalers, output_scalers)
 
-    #normalised_test_data.to_csv("normalised_test_data.csv", index=False, header=False)
+    # normalised_test_data.to_csv("normalised_test_data.csv", index=False, header=False)
 
     activation = []
     in_channels_count = 2  # const
@@ -183,18 +158,24 @@ def main():
     learning_result_y = learning_result["real_y"]
 
     # zapisywanie do plików csv
-    filename=('MSE_'+config_file+'.csv').replace(".json", "")
+    filename = ('MSE_' + config_file + '_' + str(
+        hidden_channel_neuron_count) + '_' + activation_function_letter + '_' + str(
+        learning_rate) + '_' + str(stop_criterion) + '.csv').replace(".json", "").replace("config_", "")
     with open(filename, 'w') as f:
         for epoch in range(stop_criterion):
             f.writelines(str(epochs_loss_training[epoch]) + ',' + str(epochs_loss_test[epoch]) + '\n')
 
-    filename = ('corr_values_'+config_file+'_best'+'.csv').replace(".json", "")
+    filename = ('corr_values_' + config_file + '_' + str(
+        hidden_channel_neuron_count) + '_' + activation_function_letter + '_' + str(
+        learning_rate) + '_' + str(stop_criterion) + '_best' + '.csv').replace(".json", "").replace("config_", "")
     with open(filename, 'w') as f:
         for i in range(len(learning_result_x)):
             f.writelines(str(learning_result_x[i]) + ',' + str(learning_result_y[i]) + '\n')
 
     # zapisywanie perceptronu, do łatwego odtworzenia poprzez: torch.load("filename")
-   # torch.save(multilayer_perceptron, "multilayer_perceptron")
+    torch.save(multilayer_perceptron, ("multilayer_perceptron_" + config_file + '_' + str(
+        hidden_channel_neuron_count) + '_' + activation_function_letter + '_' + str(learning_rate) + '_' + str(
+        stop_criterion)).replace(".json", "").replace("config_", ""))
 
 
 if __name__ == "__main__":

@@ -29,45 +29,57 @@ for file_path in corrected_values_files:
 
 # 1) WYKRES 1 (training_errors and epochs) -> x - epochs; y - training_errors; + każdemu z wariantów sieci powinna odpowiadać linia o innym kolorze
 palette = cycle(plt.rcParams['axes.prop_cycle'].by_key()['color'])
-plt.figure(figsize=(12, 6))
+plt.figure(figsize=(16, 6))
 for name, df in MSE_dataframes.items():
     epochs = range(1, len(df["training_errors"]) + 1)
     label = name.replace("MSE_", "Wariant sieci: ")
     color = next(palette)
     plt.plot(epochs, df["training_errors"], label=label, color=color)
-plt.xlabel("Epoka")
-plt.ylabel("Błąd MSE")
-plt.title("Porównanie błędu MSE w czasie uczenia dla różnych wariantów sieci")
+plt.xlabel("Epoka", fontsize=14)
+plt.ylabel("Błąd MSE", fontsize=14)
+plt.title("Porównanie błędu MSE w czasie uczenia dla różnych wariantów sieci", fontsize=16)
 plt.legend()
 ax = plt.gca()  # pobierz aktualną oś
+ax.set_yscale("log")
 ax.set_xlim(left=0)
 ax.xaxis.set_major_locator(ticker.MultipleLocator(10))  # wymuszenie całkowitych wartości na osi X
 plt.grid(True)
 plt.tight_layout()
-plt.savefig("plot_1.png", dpi=300)
+#plt.savefig("plot_1.png", dpi=300)
+
+# all_last_errors = [df["training_errors"][-10:].max() for df in MSE_dataframes.values()]
+# max_visible_error = max(all_last_errors) * 1.1  # trochę marginesu
+# ax.set_ylim(top=max_visible_error)
+
 plt.show()
 
 MSE_test = mean_squared_error(normalised_test_data[["measured_x", "measured_y"]], normalised_test_data[["real_x", "real_y"]])
 
 # 2) WYKRES 2 (test_errors and epochs) -> x - epochs; y - test_errors; + pozioma linia ciągnąca się przez całą szerokość wykresu na wysokości odpowiadającej wartości błędu średniokwadratowego wyznaczonego dla zmierzonych wartości występujących w zbiorze testowym (PRZESKALOWAĆ)
 palette = cycle(plt.rcParams['axes.prop_cycle'].by_key()['color'])
-plt.figure(figsize=(12, 6))
+plt.figure(figsize=(16, 6))
 for name, df in MSE_dataframes.items():
     epochs = range(1, len(df["test_errors"]) + 1)
     label = name.replace("MSE_", "Wariant sieci: ")
     color = next(palette)
     plt.plot(epochs, df["test_errors"], label=label, color=color)
 plt.axhline(y=MSE_test, color='hotpink', linestyle='--',  label='Pomiary dynamiczne')
-plt.xlabel("Epoka")
-plt.ylabel("Błąd MSE")
-plt.title("Porównanie błędu MSE w czasie testowania dla różnych wariantów sieci")
+plt.xlabel("Epoka", fontsize=14)
+plt.ylabel("Błąd MSE",fontsize=14)
+plt.title("Porównanie błędu MSE w czasie testowania dla różnych wariantów sieci", fontsize=16)
 plt.legend()
 ax = plt.gca()  # pobierz aktualną oś
+ax.set_xscale("log")
 ax.set_xlim(left=0)
 ax.xaxis.set_major_locator(ticker.MultipleLocator(10))  # wymuszenie całkowitych wartości na osi X
 plt.grid(True)
 plt.tight_layout()
-plt.savefig("plot_2.png", dpi=300)
+#plt.savefig("plot_2.png", dpi=300)
+
+# all_last_test_errors = [df["test_errors"][-10:].max() for df in MSE_dataframes.values()]
+# max_visible_test_error = max(all_last_test_errors) * 1.1
+# ax.set_ylim(top=max_visible_test_error)
+
 plt.show()
 
 def calculate_cdf(errors):
@@ -91,22 +103,22 @@ baseline_sorted, baseline_cdf = calculate_cdf(baseline_errors)
 
 # 3) WYKRES 3 - dystrybuanty błędów wyznaczone dla skorygowanych wartości wszystkich wyników pomiarów dynamicznych
 palette = cycle(plt.rcParams['axes.prop_cycle'].by_key()['color'])
-plt.figure(figsize=(12, 6))
+plt.figure(figsize=(16, 6))
 for name in sorted(cdf_data):
     color = next(palette)
-    label = name.replace("corr_values_", "Wariant sieci: ")
+    label = name.replace("corr_values_", "Wariant sieci: ").replace("_best", "")
     sorted_errors, cdf = cdf_data[name]
     plt.plot(sorted_errors, cdf, label=label, color=color)
 
 plt.plot(baseline_sorted, baseline_cdf, linestyle='--', color='hotpink', label='Pomiary dynamiczne')
 
-plt.xlabel("Błąd (mm)")
-plt.ylabel("Prawdopodobieństwo skumulowane (CDF)")
-plt.title("Dystrybuanta błędów predykcji dla różnych wariantów sieci")
+plt.xlabel("Błąd (mm)", fontsize=14)
+plt.ylabel("Prawdopodobieństwo skumulowane (CDF)", fontsize=14)
+plt.title("Dystrybuanta błędów predykcji dla różnych wariantów sieci", fontsize=16)
 plt.legend()
 plt.grid(True)
 plt.tight_layout()
-plt.savefig("plot_3.png", dpi=300)
+#plt.savefig("plot_3.png", dpi=300)
 plt.show()
 
 
@@ -123,7 +135,7 @@ for file_path in best_files:
 measured_corr = {}
 
 palette = cycle(plt.rcParams['axes.prop_cycle'].by_key()['color'])
-plt.figure(figsize=(12, 6))
+plt.figure(figsize=(16, 6))
 
 plt.scatter(test_data["measured_x"],test_data["measured_y"], color='pink', label="Wartości zmierzone")
 
@@ -131,15 +143,15 @@ for name, df in best_dataframes.items():
     measured_corr[name] = df[["real_x", "real_y"]]
     label = name.replace("corr_values_", "Wariant sieci: ")
     color = next(palette)
-    plt.scatter(df["real_x"], df["real_y"], color=color, label=label.replace("_config", "").replace("_best", ""))
+    plt.scatter(df["real_x"], df["real_y"], color=color, label=label.replace("_best", ""))
 
 plt.scatter(test_data["real_x"],test_data["real_y"], color='blue', label="Wartości rzeczywiste")
 
-plt.xlabel("Wartość x")
-plt.ylabel("Wartość y ")
-plt.title("Porównanie wyników pomiarów dynamicznych dla najlepszych wariantów sieci")
+plt.xlabel("Wartość x", fontsize=14)
+plt.ylabel("Wartość y", fontsize=14)
+plt.title("Porównanie wyników pomiarów dynamicznych dla najlepszych wariantów sieci", fontsize=16)
 plt.legend()
 plt.grid(True)
 plt.tight_layout()
-plt.savefig("plot_4.png", dpi=300)
+#plt.savefig("plot_4.png", dpi=300)
 plt.show()
