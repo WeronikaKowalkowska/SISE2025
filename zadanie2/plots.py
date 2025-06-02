@@ -69,7 +69,7 @@ plt.ylabel("Błąd MSE",fontsize=14)
 plt.title("Porównanie błędu MSE w czasie testowania dla różnych wariantów sieci", fontsize=16)
 plt.legend()
 ax = plt.gca()  # pobierz aktualną oś
-ax.set_xscale("log")
+ax.set_yscale("log")
 ax.set_xlim(left=0)
 ax.xaxis.set_major_locator(ticker.MultipleLocator(10))  # wymuszenie całkowitych wartości na osi X
 plt.grid(True)
