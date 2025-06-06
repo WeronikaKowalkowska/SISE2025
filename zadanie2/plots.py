@@ -146,7 +146,7 @@ plt.scatter(test_data["real_x"],test_data["real_y"], color='blue', label="Warto�
 
 plt.xlabel("Wartość x", fontsize=14)
 plt.ylabel("Wartość y", fontsize=14)
-plt.title("Porównanie wyników pomiarów dynamicznych dla najlepszych wariantów sieci", fontsize=16)
+plt.title("Porównanie wyników pomiarów dynamicznych dla różnych wariantów sieci", fontsize=16)
 plt.legend()
 plt.grid(True)
 plt.tight_layout()
