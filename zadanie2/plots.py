@@ -11,7 +11,7 @@ import glob
 test_data = pd.read_csv("test_data.csv", header=None, names=['measured_x', 'measured_y', 'real_x', 'real_y'])
 normalised_test_data = pd.read_csv("normalised_test_data.csv", header=None, names=['measured_x', 'measured_y', 'real_x', 'real_y'])
 
-MSE_files = glob.glob("./MSE_*.csv")
+MSE_files = glob.glob("./MSE_*_best.csv")
 MSE_dataframes = {}
 
 for file_path in MSE_files:
@@ -19,7 +19,7 @@ for file_path in MSE_files:
     df = pd.read_csv(file_path, header=None, names=["training_errors", "test_errors"])
     MSE_dataframes[base_name] = df
 
-corrected_values_files = glob.glob("./corr_values_*.csv")
+corrected_values_files = glob.glob("./corr_values_*_best.csv")
 corrected_values_dataframes = {}
 
 for file_path in corrected_values_files:
@@ -32,7 +32,9 @@ palette = cycle(plt.rcParams['axes.prop_cycle'].by_key()['color'])
 plt.figure(figsize=(16, 6))
 for name, df in MSE_dataframes.items():
     epochs = range(1, len(df["training_errors"]) + 1)
-    label = name.replace("MSE_", "Wariant sieci: ")
+    label = name.replace("MSE_", "").replace("_best", "")
+    label = label.split('_', 1)[1]
+    label = f"Wariant sieci: {label}"
     color = next(palette)
     plt.plot(epochs, df["training_errors"], label=label, color=color)
 plt.xlabel("Epoka", fontsize=14)
@@ -60,7 +62,9 @@ palette = cycle(plt.rcParams['axes.prop_cycle'].by_key()['color'])
 plt.figure(figsize=(16, 6))
 for name, df in MSE_dataframes.items():
     epochs = range(1, len(df["test_errors"]) + 1)
-    label = name.replace("MSE_", "Wariant sieci: ")
+    label = name.replace("MSE_", "").replace("_best", "")
+    label = label.split('_', 1)[1]
+    label = f"Wariant sieci: {label}"
     color = next(palette)
     plt.plot(epochs, df["test_errors"], label=label, color=color)
 plt.axhline(y=MSE_test, color='hotpink', linestyle='--',  label='Pomiary dynamiczne')
@@ -106,7 +110,9 @@ palette = cycle(plt.rcParams['axes.prop_cycle'].by_key()['color'])
 plt.figure(figsize=(16, 6))
 for name in sorted(cdf_data):
     color = next(palette)
-    label = name.replace("corr_values_", "Wariant sieci: ").replace("_best", "")
+    label = name.replace("corr_values_", " ").replace("_best", "")
+    label = label.split('_', 1)[1]
+    label = f"Wariant sieci: {label}"
     sorted_errors, cdf = cdf_data[name]
     plt.plot(sorted_errors, cdf, label=label, color=color)
 
@@ -120,17 +126,6 @@ plt.grid(True)
 plt.tight_layout()
 #plt.savefig("plot_3.png", dpi=300)
 plt.show()
-
-
-best_files = glob.glob("./corr_values_*_best.csv")
-best_dataframes = {}
-
-for file_path in best_files:
-    base_name = os.path.splitext(os.path.basename(file_path))[0]
-    df = pd.read_csv(file_path, header=None, names=["real_x", "real_y"])
-    best_dataframes[base_name] = df
-
-
 # 4) WYKRES 4 - skorygowane wartości wszystkich wyników pomiarów dynamicznych uzyskane przez ten spośród wybranych wariantów sieci, który wykazał się największą skutecznością korygowania błędów
 measured_corr = {}
 
@@ -139,11 +134,13 @@ plt.figure(figsize=(16, 6))
 
 plt.scatter(test_data["measured_x"],test_data["measured_y"], color='pink', label="Wartości zmierzone")
 
-for name, df in best_dataframes.items():
+for name, df in corrected_values_dataframes.items():
     measured_corr[name] = df[["real_x", "real_y"]]
-    label = name.replace("corr_values_", "Wariant sieci: ")
+    label = name.replace("corr_values_", "").replace("_best", "")
+    label = label.split('_', 1)[1]
+    label = f"Wariant sieci: {label}"
     color = next(palette)
-    plt.scatter(df["real_x"], df["real_y"], color=color, label=label.replace("_best", ""))
+    plt.scatter(df["real_x"], df["real_y"], color=color, label=label)
 
 plt.scatter(test_data["real_x"],test_data["real_y"], color='blue', label="Wartości rzeczywiste")
 

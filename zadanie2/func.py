@@ -1,7 +1,6 @@
 from sklearn.preprocessing import MinMaxScaler
 import pandas as pd
 
-
 def normaliseTrainingData(df):
     input_scalers = {
         "measured_x": MinMaxScaler(),
